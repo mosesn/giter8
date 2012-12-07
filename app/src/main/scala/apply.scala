@@ -21,9 +21,11 @@ trait Apply { self: Giter8 =>
     import org.eclipse.jgit.lib._
     import scala.collection.JavaConverters._
 
+    val tmp = tempdir
+
     val cmd = Git.cloneRepository()
       .setURI(repo)
-      .setDirectory(tempdir)
+      .setDirectory(tmp)
 
     val branchName = branch.map("refs/heads/" + _)
     for(b <- branchName)
@@ -33,10 +35,10 @@ trait Apply { self: Giter8 =>
 
     val result = branchName.map { b =>
       if(g.branchList().call().asScala.map(_.getName).contains(b))
-        Right(tempdir)
+        Right(tmp)
       else
         Left("Branch not found: " + b)
-    } getOrElse(Right(tempdir))
+    } getOrElse(Right(tmp))
     g.getRepository.close()
     result
   }
